@@ -1,0 +1,119 @@
+<script>
+	var a, b;
+	var a = 5, b = 4;
+	var data = { k: 5 }, n = 7, y = 8;
+	
+	// function getdata()
+	// {
+	// fetch('https://localhost:7092/api/Employee')
+	// .then(response=>{
+	// 	console.log(response);
+	// 	return response.json();
+	// })
+	// .then(data=> {
+	// 	let fd="";
+	//  //alert(data)
+	// 	  console.log(data)
+	// 	  for(let x of data)
+	// 	  {
+	// 		console.log(x)
+	// 		  for(let b in x)
+	// 		  {
+	// 			console.log(x[b])
+	// 			fd+=x[b]+"<br/>"
+	// 	  	  }
+		 	
+	// 		  fd+="<hr/>";
+	// 	  }
+	// document.getElementById('p').innerHTML=fd;
+	// });
+	// }
+	// getdata();
+	
+
+	// let user={
+	// 	"name": "abcd",
+	// 	"email": "abcd@1234",
+	// 	"department": "Marketing"
+	// };
+
+	// let postData = async function(){
+	// 	let response = await fetch("https://localhost:7092/api/Employee",
+	// 	{
+	// 		method:'POST',
+	// 		headers:{
+	// 		'Content-Type':	'application/json;charset=utf-8'
+	// 		},
+	// 		body: JSON.stringify(user)
+	// 	})	;
+	// let result = await response.json();
+	// alert(result.message);
+	// }
+
+	// postData();
+
+
+	async function getByid(id) 
+	{
+		var a = document.getElementById('get');
+		var b = Number(a.value);
+		try {
+		// alert("hello")
+		let response = await fetch(`https://localhost:7092/api/Employee/${b}`);
+		if(!response.ok)  
+		{
+			throw new Error("Something went wrong")
+		}
+
+		let emp = await response.json();
+
+		let empdetails ="";
+		for(let k in emp)
+		{
+			empdetails += `<b>${k}:</b> ${emp[k]}<br/>`;
+		}
+
+		document.getElementById('p1').innerHTML = empdetails;
+		} 
+		catch (error) 
+		{
+			console.log('error fetching : ',error)
+			document.getElementById('p1'),innerHTML = 'Error : '+error.message;
+		}	
+	}
+
+	// function fetchData() {
+	// 	return new Promise(function (resolve, reject) {
+	// 		reject();
+	// 	});
+	// }
+
+	// let promise = fetchData();
+	// promise.then(
+	// function () 
+	// {
+	// 	console.log("data fetched");
+	// },
+	//  (err) => alert(err)).then(
+	// function() 
+	// {
+
+	// 	console.log("data formatted");
+	// }).catch(function () {
+	// 	console.log("Fetch Error");
+	// }).then(function () {
+	// 	console.log("data");
+	// });
+
+	// var x = 1 + 1 + "1";
+
+	// document.write(x);
+
+</script>
+<!-- <p id="p"></p> -->
+
+<input type="number" placeholder="Enter id" id="get" >  
+<label>Get By id</label>
+<input type="button" value="Get" onclick="getByid()">
+<p id="p1"></p>
+

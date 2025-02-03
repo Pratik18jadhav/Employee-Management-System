@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Employee Details</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link href="showoneEmp.css" rel="stylesheet" />
+
+  </head>
+  <body>
+    <div class="container">
+      <h2>Enter Employee ID to View Details</h2>
+
+      <div class="form-group">
+        <label for="employeeId"><b>Employee ID</b></label>
+        <input type="number" id="get" placeholder="Enter Employee ID" />
+        <div id="idError" class="error-message"></div>
+      </div>
+
+      <button onclick="getByid()">Submit</button>
+
+      <div id="employeeDetails">
+        <h3>Employee Details:</h3>
+        <p><b>ID:</b> <span id="empId"></span></p>
+        <p><b>Name:</b> <span id="empName"></span></p>
+        <p><b>Email:</b> <span id="empEmail"></span></p>
+        <p><b>Department:</b> <span id="empDept"></span></p>
+      </div>
+      <p id="p1"></p>
+    </div>
+
+    <!-- Popup Container -->
+    <div class="popup-container" id="popupContainer">
+      <div  id="failPopup" class="popup-content">
+        <h3>Invalid Employee ID</h3>
+        <p>We could not find the employee with the ID you entered.</p>
+        <button class="popup-button" onclick="closePopup()">Close</button>
+      </div>
+
+      
+    </div>
+
+    <script>
+
+           // Function to show the success popup
+      function showPopup() {
+        document.getElementById("failPopup").style.display = "block";
+      }
+
+      // Function to close the popup
+      function closePopup() {
+        document.getElementById("failPopup").style.display = "none";
+      }
+
+  async function getByid() 
+	{
+
+		var a = document.getElementById('get');
+		var b = Number(a.value);
+		try {
+		// alert("hello")
+		let response = await fetch(`https://localhost:7092/api/Employee/${b}`);
+		if(!response.ok)  
+		{
+			throw new Error("Something went wrong")
+		}
+
+		let emp = await response.json();
+        showPopup();
+		let empdetails ="";
+		for(let k in emp)
+		{
+			empdetails += `<b>${k}:</b> ${emp[k]}<br/>`;
+		}
+
+		document.getElementById('p1').innerHTML = empdetails;
+		} 
+		catch (error) 
+		{
+			console.log('error fetching : ',error)
+			document.getElementById('p1'),innerHTML = 'Error : '+error.message;
+		}	
+	}
+
+      
+    </script>
+  </body>
+</html>

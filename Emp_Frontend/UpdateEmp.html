@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Update Employee</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link href="UpdateEmp.css" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="form-container">
+      <h2>Search Employee</h2>
+      <!-- Search Section -->
+      <form id="searchEmployeeForm" onsubmit="event.preventDefault(); searchEmployee();">
+        <div class="form-group">
+          <label for="searchId"><b>Employee ID</b></label>
+          <input type="number" id="searchId" name="id" required />
+          <div id="searchError" class="error-message"></div>
+        </div>
+        <button type="submit">Search</button>
+      </form>
+
+      <!-- Update Section -->
+      <div id="updateEmployeeFormContainer" style="display: none;">
+        <h2>Update Employee</h2>
+        <form id="updateEmployeeForm" onsubmit="event.preventDefault(); validateUpdateForm(event);">
+          <div class="form-group">
+            <label for="updateId"><b>Employee ID</b></label>
+            <input type="number" id="updateId" name="id" readonly />
+            <div id="idError" class="error-message"></div>
+          </div>
+
+          <div class="form-group">
+            <label for="uname"><b>Name</b></label>
+            <input type="text" id="uname" name="name" required />
+            <div id="nameError" class="error-message"></div>
+          </div>
+
+          <div class="form-group">
+            <label for="umail"><b>Email</b></label>
+            <input type="email" id="umail" name="email" required />
+            <div id="emailError" class="error-message"></div>
+          </div>
+
+          <div class="form-group">
+            <label for="udept"><b>Department</b></label>
+            <select id="udept" name="department" required>
+              <option value="">Select a Department</option>
+              <option value="HR">HR</option>
+              <option value="Finance">Finance</option>
+              <option value="IT">IT</option>
+              <option value="Marketing">Marketing</option>
+            </select>
+            <div id="departmentError" class="error-message"></div>
+          </div>
+
+          <button type="submit">Update</button>
+
+          <div id="updateSuccessMessage" class="success-message"></div>
+        </form>
+      </div>
+
+      <!-- Success Popup (Hidden initially) -->
+      <div id="updateSuccessPopup" class="popup" style="display: none;">
+        <div class="popup-content">
+          <h3>Employee Successfully Updated!</h3>
+          <button onclick="closeUpdatePopup()">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Function to search and prefill the form
+      async function searchEmployee() {
+        const searchId = document.getElementById("searchId").value;
+        if (!searchId.trim()) {
+          document.getElementById("searchError").textContent =
+            "Please enter an employee ID.";
+          return;
+        }
+        document.getElementById("searchError").textContent = "";
+
+        try {
+          const employee = await getByid(searchId); // Use existing getEmpById function
+
+          if (employee) {
+            populateUpdateForm(employee); // Prefill form
+            document.getElementById("updateEmployeeFormContainer").style.display =
+              "block";
+          } else {
+            document.getElementById("searchError").textContent =
+              "Employee not found.";
+          }
+        } catch (error) {
+          console.error("Error during search:", error);
+          alert(`Failed to search employee: ${error.message}`);
+        }
+      }
+
+      // Function to fetch employee details by ID
+      async function getByid(searchId) 
+	{
+
+		var a = document.getElementById('searchId');
+		var b = Number(a.value);
+		try {
+		// alert("hello")
+		let response = await fetch(`https://localhost:7092/api/Employee/${b}`);
+		if(!response.ok)  
+		{
+			throw new Error("Something went wrong")
+		}
+
+		return await response.json();
+        
+		// let empdetails ="";
+		// for(let k in emp)
+		// {
+		// 	empdetails += `<b>${k}:</b> ${emp[k]}<br/>`;
+		// }
+
+		// document.getElementById('p1').innerHTML = empdetails;
+		} 
+		catch (error) 
+		{
+			console.log('error fetching : ',error)
+			document.getElementById('p1'),innerHTML = 'Error : '+error.message;
+		}	
+	}
+
+      // Function to prefill the update form
+      function populateUpdateForm(employee) {
+        document.getElementById("updateId").value = employee.id;
+        document.getElementById("uname").value = employee.name;
+        document.getElementById("umail").value = employee.email;
+        document.getElementById("udept").value = employee.department;
+      }
+
+      // Function to validate and submit update form
+      function validateUpdateForm(event) {
+        let isValid = true;
+
+        const name = document.getElementById("uname");
+        const email = document.getElementById("umail");
+        const department = document.getElementById("udept");
+
+        document.getElementById("nameError").textContent = "";
+        document.getElementById("emailError").textContent = "";
+        document.getElementById("departmentError").textContent = "";
+
+        if (name.value.trim() === "") {
+          document.getElementById("nameError").textContent = "Name is required.";
+          isValid = false;
+        }
+
+        const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+        if (!emailPattern.test(email.value)) {
+          document.getElementById("emailError").textContent =
+            "Please enter a valid email address.";
+          isValid = false;
+        }
+
+        if (department.value === "") {
+          document.getElementById("departmentError").textContent =
+            "Please select a department.";
+          isValid = false;
+        }
+
+        if (isValid) {
+          const employee = {
+            id: document.getElementById("updateId").value,
+            name: name.value,
+            email: email.value,
+            department: department.value,
+          };
+          updateEmp(employee);
+        }
+      }
+
+      // Function to update employee details
+      async function updateEmp(employee) {
+        try {
+          const response = await fetch(
+            `https://localhost:7092/api/Employee/${employee.id}`,
+            {
+              method: "PUT",
+              headers: { "Content-Type": "application/json;charset=utf-8" },
+              body: JSON.stringify(employee),
+            }
+          );
+
+          if (response.ok) {
+            alert("Employee details updated successfully.");
+            showUpdatePopup();
+          } else if (response.status === 404) {
+            alert("Employee not found.");
+          } else {
+            throw new Error("Something went wrong.");
+          }
+        } catch (error) {
+          console.error("Error during update:", error);
+          alert(`Failed to update employee: ${error.message}`);
+        }
+      }
+
+      // Function to show success popup
+      function showUpdatePopup() {
+        document.getElementById("updateSuccessPopup").style.display = "block";
+      }
+
+      // Function to close the success popup
+      function closeUpdatePopup() {
+        document.getElementById("updateSuccessPopup").style.display = "none";
+      }
+    </script>
+  </body>
+</html>

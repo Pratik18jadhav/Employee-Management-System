@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+	<link rel="stylesheet" href="styles.css">
+	<style>
+        #options {
+            display: none; /* Initially hidden */
+            opacity: 0;
+        }
+        #options.show{
+            display: block;
+            opacity: 1;
+        }
+
+		#op{
+            display: none; /* Initially hidden */
+            opacity: 0;
+        }
+        #op.show{
+            display: block;
+            opacity: 1;
+        }
+
+		#del{
+            display: none; /* Initially hidden */
+            opacity: 0;
+        }
+        #del.show{
+            display: block;
+            opacity: 1;
+        }
+
+		#update{
+            display: none; /* Initially hidden */
+            opacity: 0;
+        }
+        #update.show{
+            display: block;
+            opacity: 1;
+        }
+    </style>
+	
+    <script>
+    function getdata()
+	{
+		let newwindow = window.open("Getall.html", "_blank");
+
+// Fetch employee data from the API
+	fetch("https://localhost:7092/api/Employee")
+	.then((response) => {
+		if (!response.ok) {
+			throw new Error("Failed to fetch data");
+		}
+		return response.json();
+	})
+	.then((data) => {
+		// Prepare the employee data for display in the new window
+		let fd = "<h2>Employee List</h2>";
+		fd += "<table border='1' cellpadding='10' cellspacing='0' style='width: 100%;'><thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Department</th></tr></thead><tbody>";
+
+		// Loop through the employee data and create table rows
+		data.forEach((employee) => {
+			fd += `<tr>
+				<td>${employee.id}</td>
+				<td>${employee.name}</td>
+				<td>${employee.email}</td>
+				<td>${employee.department}</td>
+			</tr>`;
+		});
+
+		fd += "</tbody></table>";
+
+		// Ensure the new window's document is ready before writing to it
+		newwindow.document.open();
+		newwindow.document.write(fd);
+		newwindow.document.close();
+	})
+	.catch((error) => {
+		console.error("Error fetching data:", error);
+		newwindow.document.open();
+		newwindow.document.write("<h3>Error loading employee data</h3>");
+		newwindow.document.close();
+	});
+	}
+	
+    
+
+// 	function populate()
+// 	{
+// 		const user={
+// 		name: "",
+// 		email: "",
+// 		department: ""
+// 	};
+
+// 	user.name = document.getElementById('name').value;
+// 	user.email = document.getElementById('mail').value;
+// 	user.department = document.getElementById('dept').value;
+
+// 	postData(user);
+
+// }
+
+	async function deleteEmployee()
+	{
+		var a = document.getElementById('delete');
+		var b = Number(a.value);
+		try{
+
+			let response = await fetch(`https://localhost:7092/api/Employee/${b}`,{
+			method : 'DELETE',
+			headers:{
+			'Content-Type':	'application/json;charset=utf-8'
+				}
+			});
+
+			if (response.status === 204) 
+			{
+            // No content expected, so skip parsing JSON
+            	alert("Data deleted successfully.");
+        	}
+			else if (response.status === 404) 
+			{
+            	alert("ID not found!");
+        	}
+			else
+			{
+				const errorText = await response.text();
+            	throw new Error(`Unexpected error: ${response.status}. ${errorText}`);
+			}
+		}
+		catch(error)
+		{
+			console.error("Error hai",error);
+			alert(`Failed to delete employee : ${error.message}`);
+		}
+	}
+
+	// async function updateEmp() 
+	// {
+	// 	const id = document.getElementById('updateId').value;
+	// 	const name = document.getElementById('uname').value;
+	// 	const email = document.getElementById('umail').value;
+	// 	const deptt = document.getElementById('udept').value;
+
+	// 	const uptEmp = {
+	// 		id : Number(id),
+	// 		name : name,
+	// 		email : email,
+	// 		department : deptt
+	// 	};
+
+	// 	try
+
+	// 	{
+	// 		let response = await fetch(`https://localhost:7092/api/Employee/${id}`,{
+	// 			method : 'PUT',
+	// 			headers : {'Content-Type': 'application/json;charset=utf-8'},
+	// 			body : JSON.stringify(uptEmp)
+	// 		});
+
+	// 		if(response.ok)
+	// 		{
+	// 			let result = await response.json();
+	// 			alert(result.message || "Employee Details Updated Successfully");
+	// 		}
+	// 		else if(response.status == 404)
+	// 		{
+	// 			alert("Employee Not Found");
+	// 		}
+	// 		else
+	// 		{
+	// 			throw new Error("Something Went Wrong");
+	// 		}
+	// 	}catch(error)
+	// 	{
+	// 		console.error("Error during update:", error);
+    //     	alert(`Failed to update employee: ${error.message}`);
+	// 	}
+		
+	// }
+
+	function ADDpopup()
+	{
+		window.open("Add.html",'_blank');
+	}
+
+	function SpecificPopup()
+	{
+		window.open("showoneEmp.html",'_blank');
+	}
+
+	function UpdatePopup()
+	{
+		window.open("UpdateEmp.html",'_blank');
+	}
+
+	function toggleOptions() 
+	{
+		const opdiv = document.getElementById('op');
+		const addradio = document.getElementById('addEmployee')
+		const deldiv = document.getElementById('del');
+		const delradio = document.getElementById('deleteEmployee')
+        const optionsDiv = document.getElementById('options');
+        const radio = document.getElementById('specificEmployee');
+
+		const updiv = document.getElementById('update');
+		const upradio = document.getElementById('updateEmployee');
+
+        if (radio.checked) {
+            optionsDiv.classList.add('show'); // Show options
+			opdiv.classList.remove('show');
+			deldiv.classList.remove('show')
+			updiv.classList.remove('show');
+        }
+		else if(addradio.checked)
+		{
+			opdiv.classList.add('show');
+			optionsDiv.classList.remove('show');
+			deldiv.classList.remove('show');
+			updiv.classList.remove('show');
+
+		}
+		else if(delradio.checked)
+		{
+			deldiv.classList.add('show');
+			optionsDiv.classList.remove('show');
+			opdiv.classList.remove('show');
+			updiv.classList.remove('show');
+
+		}
+		else if(upradio.checked)
+		{
+			
+			updiv.classList.add('show');
+			deldiv.classList.remove('show');
+			optionsDiv.classList.remove('show');
+			opdiv.classList.remove('show');
+		}
+
+		else 
+		{
+            optionsDiv.classList.remove('show'); // Hide options
+        }
+    }
+
+    </script>
+</head>
+<body>
+    <pre>
+    <label>Select Your Choice</label>
+
+    <input type="radio" name="pro" onclick="getdata()"><b>Show All Employees</b> 
+    
+    <input type="radio" name="pro" id="specificEmployee" onclick="SpecificPopup()"><b>Show Specific Employee</b>
+
+    <input type="radio" name="pro" id="addEmployee" onclick="ADDpopup()"><b>Add Employee</b>
+
+    <input type="radio" name="pro" id="deleteEmployee" onclick="toggleOptions()"><b>Delete Employee</b>
+	
+	<input type="radio" name="pro" id="updateEmployee" onclick="UpdatePopup()"><b>Update Employee Details</b>
+	
+	<!-- <div id="options">
+	<input type="number" placeholder="Enter ID" id="get">
+	<button onclick="getByid()">Search</button>
+	</div>
+	<div id="op">
+	<label>Please Enter the Details</label>
+	<input type="text" placeholder="Enter Name" id="name">
+	<input type="email" placeholder="Enter Email" id="mail">
+	<input type="text" placeholder="Enter Department" id="dept">
+	<button onclick="populate()">Submit</button> 
+	</div> -->
+	<div id="del">
+	<label>PLease Eneter the Id</label>
+	<input type="number" placeholder="Enter ID" id="delete"><br>
+	<button  onclick="if (confirm('Are you sure you want to delete this employee?')) { deleteEmployee(); }">Confirm</button>
+	</div>
+
+	<!-- <div id="update">
+	<label>Please Enter the Details</label>
+	<input type="number" placeholder="Enter Employee ID" id="updateId">
+	<input type="text" placeholder="Enter Name" id="uname">
+	<input type="email" placeholder="Enter Email" id="umail">
+	<input type="text" placeholder="Enter Department" id="udept">
+	<button onclick="if (confirm('Are you sure you want to Upate this employee details?')) { updateEmp(); }">Confirm</button> 
+	</div> -->
+
+	</pre>
+<p id="p1"></p>
+
+	
+</body>
+</html>
